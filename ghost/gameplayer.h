@@ -109,6 +109,7 @@ private:
 	double m_Score;								// the player's generic "score" for the matchmaking algorithm
 	bool m_LoggedIn;							// if the player has logged in or not (used with CAdminGame only)
 	bool m_Spoofed;								// if the player has spoof checked or not
+	bool m_SpoofedWhisper;
 	bool m_Reserved;							// if the player is reserved (VIP) or not
 	bool m_WhoisShouldBeSent;					// if a battle.net /whois should be sent for this player or not
 	bool m_WhoisSent;							// if we've sent a battle.net /whois for this player yet (for spoof checking)
@@ -159,6 +160,7 @@ public:
 	double GetScore( )							{ return m_Score; }
 	bool GetLoggedIn( )							{ return m_LoggedIn; }
 	bool GetSpoofed( )							{ return m_Spoofed; }
+	bool GetSpoofedWhisper( )							{ return m_SpoofedWhisper; }
 	bool GetReserved( )							{ return m_Reserved; }
 	bool GetWhoisShouldBeSent( )				{ return m_WhoisShouldBeSent; }
 	bool GetWhoisSent( )						{ return m_WhoisSent; }
@@ -191,6 +193,7 @@ public:
 	void SetScore( double nScore )													{ m_Score = nScore; }
 	void SetLoggedIn( bool nLoggedIn )												{ m_LoggedIn = nLoggedIn; }
 	void SetSpoofed( bool nSpoofed )												{ m_Spoofed = nSpoofed; }
+	void SetSpoofedWhisper( bool nSpoofedWhisper )												{ m_SpoofedWhisper = nSpoofedWhisper; }
 	void SetReserved( bool nReserved )												{ m_Reserved = nReserved; }
 	void SetWhoisShouldBeSent( bool nWhoisShouldBeSent )							{ m_WhoisShouldBeSent = nWhoisShouldBeSent; }
 	void SetDownloadAllowed( bool nDownloadAllowed )								{ m_DownloadAllowed = nDownloadAllowed; }

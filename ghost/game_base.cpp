@@ -185,6 +185,9 @@ CBaseGame :: ~CBaseGame( )
         for( vector<CCallableScoreCheck *> :: iterator i = m_ScoreChecks.begin( ); i != m_ScoreChecks.end( ); ++i )
 		m_GHost->m_Callables.push_back( *i );
 
+	for( vector<PairedGPSCheck> :: iterator i = m_PairedGPSChecks.begin( ); i != m_PairedGPSChecks.end( ); i++ )
+		m_GHost->m_Callables.push_back( i->second );
+
 	while( !m_Actions.empty( ) )
 	{
 		delete m_Actions.front( );
@@ -332,6 +335,47 @@ bool CBaseGame :: Update( void *fd, void *send_fd )
 		else
                         ++i;
 	}
+
+	for( vector<PairedGPSCheck> :: iterator i = m_PairedGPSChecks.begin( ); i != m_PairedGPSChecks.end( ); )
+	{
+		if( i->second->GetReady( ) )
+		{
+			CDBGamePlayerSummary *GamePlayerSummary = i->second->GetResult( );
+
+			if( GamePlayerSummary )
+			{
+				if( i->first.empty( ) )
+        {
+          string pName = i->second->GetName( );
+          
+          if( !m_GameLoading && !m_GameLoaded )
+          {
+            if( GamePlayerSummary->GetTotalGames( ) == 0 )
+            {
+            	for( vector<CGamePlayer *> :: iterator j = m_Players.begin( ); j != m_Players.end( ); j++ )
+            	{
+            		if( (*j)->GetName( ) == pName && (*j)->GetSpoofedWhisper( ) )
+                {  
+             			(*j)->SetDeleteMe( true );
+             			(*j)->SetLeftReason( "was kicked by host" );
+          				(*j)->SetLeftCode( PLAYERLEAVE_LOBBY );
+          				OpenSlot( (unsigned char)( GetSIDFromPID( (*j)->GetPID( ) ) ), false );
+            		}
+            	}
+            }
+          }
+        }
+      }
+			m_GHost->m_DB->RecoverCallable( i->second );
+			delete i->second;
+			i = m_PairedGPSChecks.erase( i );
+		}
+		else
+			i++;
+	}
+
+
+
 
 	// update players
 
@@ -4488,12 +4532,20 @@ void CBaseGame :: AddToSpoofed( string server, string name, bool sendMessage )
 
 	if( Player )
 	{
+    if( sendMessage )
+      Player->SetSpoofedWhisper( true );
+
+    if( Player->GetSpoofed( ) )
+      return;
+
 		Player->SetSpoofedRealm( server );
 		Player->SetSpoofed( true );
 
 		if( sendMessage )
 			SendAllChat( m_GHost->m_Language->SpoofCheckAcceptedFor( server, name ) );
-	}
+	
+		m_PairedGPSChecks.push_back( PairedGPSCheck( string( ), m_GHost->m_DB->ThreadedGamePlayerSummaryCheck( name ) ) );
+  }
 }
 
 void CBaseGame :: AddToReserved( string name )
